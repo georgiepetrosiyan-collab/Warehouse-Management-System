@@ -39,5 +39,97 @@ namespace WarehouseAPI.Controllers
                 totalSold     = inv.Sum(p => p.TotalSold)
             });
         }
+
+        [HttpGet("recommendations/{username}")]
+        public IActionResult GetRecommendations(string username)
+        {
+            var user = _engine.UserRegistry.FirstOrDefault(u => 
+                u.Username.Equals(username, System.StringComparison.OrdinalIgnoreCase));
+            
+            if (user == null) 
+                return NotFound(new { message = "User not found" });
+            
+            var recommendations = _engine.GetRecommendations(user);
+            return Ok(recommendations);
+        }
+
+        // ========== NEW STATISTICS ENDPOINTS ==========
+
+        /// <summary>
+        /// GET: api/products/statistics/mean-price
+        /// Returns arithmetic mean of all product prices
+        /// Formula: x̄ = (1/n) Σ xᵢ
+        /// </summary>
+        [HttpGet("statistics/mean-price")]
+        public IActionResult GetMeanPrice()
+        {
+            var mean = _engine.CalculateMeanPrice();
+            return Ok(new { mean, formula = "x̄ = (1/n) Σ xᵢ", count = _engine.MasterInventory.Count });
+        }
+
+        /// <summary>
+        /// GET: api/products/statistics/mode
+        /// Returns the most purchased product (mode of purchase frequency)
+        /// </summary>
+        [HttpGet("statistics/mode")]
+        public IActionResult GetModeMostPurchased()
+        {
+            var mode = _engine.FindModeMostPurchased();
+            if (mode == null) return Ok(new { message = "No products found" });
+            return Ok(new { product = mode.Name, totalSold = mode.TotalSold });
+        }
+
+        /// <summary>
+        /// GET: api/products/statistics/mean-sales
+        /// Returns arithmetic mean of units sold per product
+        /// </summary>
+        [HttpGet("statistics/mean-sales")]
+        public IActionResult GetMeanSales()
+        {
+            var mean = _engine.CalculateMeanSales();
+            return Ok(new { meanSales = mean, formula = "x̄ = (1/n) Σ sᵢ" });
+        }
+
+        /// <summary>
+        /// GET: api/products/statistics/comprehensive
+        /// Returns all statistics in one call
+        /// </summary>
+        [HttpGet("statistics/comprehensive")]
+        public IActionResult GetComprehensiveStatistics()
+        {
+            var stats = _engine.GetStatistics();
+            var meanPrice = _engine.CalculateMeanPrice();
+            var meanSales = _engine.CalculateMeanSales();
+            var mode = _engine.FindModeMostPurchased();
+            var allModes = _engine.FindAllModesMostPurchased();
+            
+            return Ok(new
+            {
+                mostDemanded = stats.mostDemanded,
+                leastDemanded = stats.leastDemanded,
+                averagePrice = stats.avgPrice,
+                totalSold = stats.totalSold,
+                meanPrice = meanPrice,
+                meanSales = meanSales,
+                modeProduct = mode?.Name,
+                modeSales = mode?.TotalSold,
+                allModes = allModes.Select(p => new { p.Name, p.TotalSold }),
+                productCount = _engine.MasterInventory.Count
+            });
+        }
+
+        /// <summary>
+        /// GET: api/products/audit/{productId}
+        /// Returns audit trail for a specific product (Stack - LIFO)
+        /// </summary>
+        [HttpGet("audit/{productId}")]
+        public IActionResult GetAuditTrail(int productId)
+        {
+            var product = _engine.MasterInventory.FirstOrDefault(p => p.Id == productId);
+            if (product == null) return NotFound();
+            
+            var auditList = product.AuditTrail.ToList();
+            return Ok(new { productId, productName = product.Name, auditTrail = auditList });
+        }
     }
 }

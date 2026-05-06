@@ -11,7 +11,7 @@ namespace WarehouseAPI.Dtos
         DateTime? ExpiryDate
     );
 
-    public record LoginDto(string Username, UserRole Role);
+    public record LoginDto(string Username, UserRole Role, Gender Gender = Gender.Unspecified);
 
     public record BuyDto(List<int> ProductIds);
 }
