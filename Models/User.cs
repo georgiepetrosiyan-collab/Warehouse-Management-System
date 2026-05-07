@@ -1,9 +1,11 @@
+//user.cs
+
 namespace WarehouseAPI.Models
 {
     public enum UserRole { Admin, Buyer }
     
     /// <summary>
-    /// Gender enumeration for demographic-based recommendations.
+    
     /// </summary>
     public enum Gender { Male, Female, Unspecified }
 
