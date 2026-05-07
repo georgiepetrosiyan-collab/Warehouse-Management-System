@@ -1,3 +1,5 @@
+//ProductController.cs
+
 using Microsoft.AspNetCore.Mvc;
 using WarehouseAPI.Dtos;
 using WarehouseAPI.Engine;
@@ -53,13 +55,7 @@ namespace WarehouseAPI.Controllers
             return Ok(recommendations);
         }
 
-        // ========== NEW STATISTICS ENDPOINTS ==========
 
-        /// <summary>
-        /// GET: api/products/statistics/mean-price
-        /// Returns arithmetic mean of all product prices
-        /// Formula: x̄ = (1/n) Σ xᵢ
-        /// </summary>
         [HttpGet("statistics/mean-price")]
         public IActionResult GetMeanPrice()
         {
@@ -67,10 +63,7 @@ namespace WarehouseAPI.Controllers
             return Ok(new { mean, formula = "x̄ = (1/n) Σ xᵢ", count = _engine.MasterInventory.Count });
         }
 
-        /// <summary>
-        /// GET: api/products/statistics/mode
-        /// Returns the most purchased product (mode of purchase frequency)
-        /// </summary>
+  
         [HttpGet("statistics/mode")]
         public IActionResult GetModeMostPurchased()
         {
@@ -79,10 +72,6 @@ namespace WarehouseAPI.Controllers
             return Ok(new { product = mode.Name, totalSold = mode.TotalSold });
         }
 
-        /// <summary>
-        /// GET: api/products/statistics/mean-sales
-        /// Returns arithmetic mean of units sold per product
-        /// </summary>
         [HttpGet("statistics/mean-sales")]
         public IActionResult GetMeanSales()
         {
@@ -90,10 +79,7 @@ namespace WarehouseAPI.Controllers
             return Ok(new { meanSales = mean, formula = "x̄ = (1/n) Σ sᵢ" });
         }
 
-        /// <summary>
-        /// GET: api/products/statistics/comprehensive
-        /// Returns all statistics in one call
-        /// </summary>
+
         [HttpGet("statistics/comprehensive")]
         public IActionResult GetComprehensiveStatistics()
         {
@@ -118,10 +104,7 @@ namespace WarehouseAPI.Controllers
             });
         }
 
-        /// <summary>
-        /// GET: api/products/audit/{productId}
-        /// Returns audit trail for a specific product (Stack - LIFO)
-        /// </summary>
+
         [HttpGet("audit/{productId}")]
         public IActionResult GetAuditTrail(int productId)
         {
